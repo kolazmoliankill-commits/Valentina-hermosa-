@@ -3,88 +3,45 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>Universo de Valentina</title>
+<title>Galaxia de Valentina</title>
 <style>
-    body, html { margin: 0; height: 100%; background: #000; overflow: hidden; font-family: 'Segoe UI', Arial, sans-serif; }
+    body, html { margin: 0; height: 100%; background: #000; overflow: hidden; font-family: Arial, sans-serif; }
     canvas { display: block; }
 
-    /* Nombre de Valentina con efecto Neón */
-    .header-container {
+    /* Nombre de Valentina arriba */
+    .header-name {
         position: fixed;
-        top: 30px;
+        top: 25px;
         width: 100%;
         text-align: center;
         z-index: 2000;
         pointer-events: none;
     }
-    .header-container h1 {
+    .header-name h1 {
         color: #fff;
         margin: 0;
-        font-size: clamp(1.5rem, 8vw, 3rem);
-        letter-spacing: 10px;
+        font-size: 2.5rem;
+        letter-spacing: 8px;
         text-transform: uppercase;
-        text-shadow: 0 0 10px #fff, 0 0 20px #ff00de, 0 0 40px #ff00de;
-        animation: neonPulse 2s ease-in-out infinite alternate;
-    }
-    @keyframes neonPulse {
-        from { opacity: 0.7; transform: scale(0.98); }
-        to { opacity: 1; transform: scale(1.02); }
+        text-shadow: 0 0 15px #ff6600; /* Brillo sutil naranja como el original */
     }
 
-    /* Reproductor Mejorado */
-    .player {
-        position: fixed;
-        bottom: 25px;
-        left: 50%;
-        transform: translateX(-50%);
-        width: 85%;
-        max-width: 500px;
-        display: flex;
-        align-items: center;
-        gap: 15px;
-        padding: 12px 20px;
-        border: 1px solid rgba(255, 102, 0, 0.5);
-        border-radius: 50px;
-        background: rgba(0, 0, 0, 0.4);
-        backdrop-filter: blur(10px);
-        box-shadow: 0 0 20px rgba(255, 102, 0, 0.2);
-        z-index: 1000;
-        color: #fff;
-    }
-    .player button {
-        background: none;
-        border: none;
-        color: #f60;
-        font-size: 24px;
-        cursor: pointer;
-        transition: 0.3s;
-    }
-    .player button:hover { transform: scale(1.2); color: #ff8844; }
-    .progress {
-        flex-grow: 1;
-        height: 8px;
-        background: rgba(255, 255, 255, 0.1);
-        border-radius: 10px;
-        overflow: hidden;
-        cursor: pointer;
-    }
-    .progress-bar {
-        height: 100%;
-        width: 0%;
-        background: linear-gradient(90deg, #f60, #ff00de);
-        box-shadow: 0 0 10px #f60;
-    }
-    .time { font-size: 11px; min-width: 70px; text-align: right; opacity: 0.8; }
+    .player { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); width: 90%; max-width: 600px; display: flex; align-items: center; gap: 10px; padding: 10px; border: 2px solid #f60; border-radius: 999px; background: 0 0; box-shadow: 0 0 15px #f60, 0 0 30px #f30; z-index: 1000; color: #fff; font-size: 14px; }
+    .player button { background: 0 0; border: none; color: #fff; font-size: 22px; cursor: pointer; filter: drop-shadow(0 0 6px #ff6600); transition: transform .2s; }
+    .player button:hover { transform: scale(1.2); }
+    .progress { flex-grow: 1; height: 14px; background: rgba(255,255,255,.12); border-radius: 999px; overflow: hidden; cursor: pointer; position: relative; }
+    .progress-bar { height: 100%; width: 0%; background: linear-gradient(270deg,#f60,#f30,#f09,#f60); background-size: 400% 400%; border-radius: 999px; box-shadow: 0 0 10px #f60; animation: flowing 6s ease infinite; }
+    @keyframes flowing { 0% { background-position: 0 50% } 50% { background-position: 100% 50% } 100% { background-position: 0 50% } }
+    .time { min-width: 74px; text-align: right; font-size: 12px; color: #fff; text-shadow: 0 0 5px #f60; }
 </style>
 </head>
 <body>
 
-<div class="header-container">
+<div class="header-name">
     <h1>Valentina</h1>
 </div>
 
 <canvas id="c"></canvas>
-
 <div class="player">
     <button id="play">▶️</button>
     <div class="progress" id="progress"><div class="progress-bar" id="progress-bar"></div></div>
@@ -97,27 +54,14 @@
 
 <script src="https://cdn.jsdelivr.net/npm/three@0.148.0/build/three.min.js"></script>
 <script>
-const audio = document.getElementById("audio"),
-      playBtn = document.getElementById("play"),
-      progress = document.getElementById("progress"),
-      progressBar = document.getElementById("progress-bar"),
-      timeDisplay = document.getElementById("time");
-
+const audio = document.getElementById("audio"), playBtn = document.getElementById("play"), progress = document.getElementById("progress"), progressBar = document.getElementById("progress-bar"), timeDisplay = document.getElementById("time");
 let isPlaying = false;
 
-function formatTime(e) {
-    if (!isFinite(e)) return "0:00";
-    return Math.floor(e/60) + ":" + Math.floor(e%60).toString().padStart(2, "0");
-}
+function formatTime(e) { if (!isFinite(e)) return "0:00"; return Math.floor(e/60) + ":" + Math.floor(e%60).toString().padStart(2, "0"); }
 
 playBtn.addEventListener("click", async () => {
-    if (isPlaying) {
-        audio.pause();
-        playBtn.textContent = "▶️";
-    } else {
-        await audio.play();
-        playBtn.textContent = "⏸️";
-    }
+    if (isPlaying) { audio.pause(); playBtn.textContent = "▶️"; }
+    else { await audio.play(); playBtn.textContent = "⏸️"; }
     isPlaying = !isPlaying;
 });
 
@@ -128,155 +72,125 @@ audio.addEventListener("timeupdate", () => {
 });
 
 progress.addEventListener("click", (e) => {
-    const t = progress.getBoundingClientRect(),
-          n = (e.clientX - t.left) / t.width;
+    const t = progress.getBoundingClientRect(), n = (e.clientX - t.left) / t.width;
     if (isFinite(audio.duration)) audio.currentTime = n * audio.duration;
 });
 
-// THREE.JS SCENE
-const canvas = document.getElementById("c"),
-      renderer = new THREE.WebGLRenderer({canvas: canvas, antialias: true});
-renderer.setPixelRatio(window.devicePixelRatio);
+const canvas = document.getElementById("c"), renderer = new THREE.WebGLRenderer({canvas: canvas, antialias: true});
+renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
 renderer.setSize(innerWidth, innerHeight);
 
-const scene = new THREE.Scene(),
-      camera = new THREE.PerspectiveCamera(60, innerWidth/innerHeight, 0.1, 5000);
+const scene = new THREE.Scene(), camera = new THREE.PerspectiveCamera(60, innerWidth/innerHeight, 0.1, 5000);
 let targetDist = 300, currentDist = 300, rotX = 0.2, rotY = 0;
 
-// Fondo de Espacio
 const loader = new THREE.TextureLoader();
 scene.background = loader.load("https://raw.githubusercontent.com/mrdoob/three.js/dev/examples/textures/cube/space/px.jpg");
 
-// Lluvia de Estrellas
-(function createStars(count = 2000) {
-    const geo = new THREE.BufferGeometry(),
-          pos = new Float32Array(count * 3);
-    for (let i = 0; i < count; i++) {
-        const r = 3000 * (0.3 + 0.7 * Math.random()),
-              theta = Math.random() * Math.PI * 2,
-              phi = Math.acos(2 * Math.random() - 1);
-        pos[i*3] = r * Math.sin(phi) * Math.cos(theta);
-        pos[i*3+1] = r * Math.cos(phi);
-        pos[i*3+2] = r * Math.sin(phi) * Math.sin(theta);
+(function createStars(e = 2000, t = 3000) {
+    const n = new THREE.BufferGeometry(), a = new Float32Array(3 * e);
+    for (let n = 0; n < e; n++) {
+        const e = t * (0.3 + 0.7 * Math.random()), r = Math.random() * Math.PI * 2, i = Math.acos(2 * Math.random() - 1);
+        a[3 * n + 0] = e * Math.sin(i) * Math.cos(r);
+        a[3 * n + 1] = e * Math.cos(i);
+        a[3 * n + 2] = e * Math.sin(i) * Math.sin(r);
     }
-    geo.setAttribute("position", new THREE.BufferAttribute(pos, 3));
-    scene.add(new THREE.Points(geo, new THREE.PointsMaterial({size: 1.5, color: 0xffffff, depthWrite: false})));
+    n.setAttribute("position", new THREE.BufferAttribute(a, 3));
+    scene.add(new THREE.Points(n, new THREE.PointsMaterial({size: 1.5, color: 0xffffff, depthWrite: false})));
 })();
 
-// Núcleo Central Superbrillante
-const core = new THREE.Mesh(
-    new THREE.SphereGeometry(40, 64, 64),
-    new THREE.MeshPhongMaterial({color: 0xffffff, emissive: 0xff00de, emissiveIntensity: 2, transparent: true, opacity: 0.8})
-);
+// Restauración de colores originales (oscuros y legibles)
+const coreMat = new THREE.MeshPhongMaterial({color: 1118481, transparent: true, opacity: 0.6, shininess: 200});
+const core = new THREE.Mesh(new THREE.SphereGeometry(40, 64, 64), coreMat);
 scene.add(core);
 
-function makeTextTexture(text, size = 80, shadow = 50) {
-    const canvas = document.createElement("canvas");
-    canvas.width = 512; canvas.height = 512;
-    const ctx = canvas.getContext("2d");
-    ctx.font = `bold ${size}px Arial`;
-    ctx.textAlign = "center";
-    ctx.textBaseline = "middle";
-    ctx.fillStyle = "#fff";
-    ctx.shadowColor = "#ff00de";
-    ctx.shadowBlur = shadow;
-    ctx.fillText(text, 256, 256);
-    return new THREE.CanvasTexture(canvas);
+function makeCenterTextTexture(e) {
+    const t = document.createElement("canvas"); t.width = 512; t.height = 512;
+    const n = t.getContext("2d"); n.font = "bold 80px Arial"; n.textAlign = "center"; n.textBaseline = "middle";
+    n.fillStyle = "#ff0033"; n.shadowColor = "#ff66aa"; n.shadowBlur = 50; n.fillText(e, 256, 256);
+    return new THREE.CanvasTexture(t);
 }
 
-const centerSprite = new THREE.Sprite(new THREE.SpriteMaterial({map: makeTextTexture("TE AMO ❤️", 90, 70), transparent: true}));
-centerSprite.scale.set(70, 70, 1);
+const centerSprite = new THREE.Sprite(new THREE.SpriteMaterial({map: makeCenterTextTexture("TE AMO ❤️"), transparent: true}));
+centerSprite.scale.set(60, 60, 1);
 scene.add(centerSprite);
 
-// Efecto Glow
-const glowTex = (function() {
-    const c = document.createElement("canvas"); c.width = c.height = 512;
-    const ctx = c.getContext("2d"), g = ctx.createRadialGradient(256, 256, 10, 256, 256, 250);
-    g.addColorStop(0, "rgba(255, 0, 222, 0.8)");
-    g.addColorStop(0.5, "rgba(255, 100, 0, 0.3)");
-    g.addColorStop(1, "rgba(0,0,0,0)");
-    ctx.fillStyle = g; ctx.fillRect(0,0,512,512);
-    return new THREE.CanvasTexture(c);
-})();
-const glow = new THREE.Sprite(new THREE.SpriteMaterial({map: glowTex, transparent: true, blending: THREE.AdditiveBlending}));
+function makeGlow(e=768, t="255,160,0", n="255,60,0") {
+    const a = document.createElement("canvas"); a.width = a.height = e;
+    const r = a.getContext("2d"), i = r.createRadialGradient(e/2, e/2, 0.05*e, e/2, e/2, 0.5*e);
+    i.addColorStop(0, "rgba("+t+",0.9)"); i.addColorStop(0.5, "rgba("+n+",0.5)"); i.addColorStop(1, "rgba(0,0,0,0)");
+    r.fillStyle = i; r.fillRect(0, 0, e, e); return new THREE.CanvasTexture(a);
+}
+const glow = new THREE.Sprite(new THREE.SpriteMaterial({map: makeGlow(), transparent: true, depthWrite: false}));
 glow.scale.set(500, 500, 1);
 scene.add(glow);
 
-// Anillos Cinéticos
-function ringTex() {
-    const c = document.createElement("canvas"); c.width = c.height = 512;
-    const ctx = c.getContext("2d"); ctx.translate(256, 256);
-    const g = ctx.createRadialGradient(0, 0, 170, 0, 0, 250);
-    g.addColorStop(0, "rgba(255, 255, 255, 1)");
-    g.addColorStop(0.4, "rgba(255, 0, 222, 0.8)");
-    g.addColorStop(1, "rgba(0,0,0,0)");
-    ctx.fillStyle = g; ctx.beginPath(); ctx.arc(0,0,250,0,Math.PI*2); ctx.arc(0,0,170,0,Math.PI*2, true); ctx.fill();
-    return new THREE.CanvasTexture(c);
+function ringTexture(e=768) {
+    const t = document.createElement("canvas"); t.width = t.height = e;
+    const n = t.getContext("2d"); n.translate(e/2, e/2);
+    const a = 0.34*e, r = 0.49*e, i = n.createRadialGradient(0, 0, 0.3*a, 0, 0, r);
+    i.addColorStop(0, "rgba(255,255,200,1)"); i.addColorStop(0.3, "rgba(255,160,60,0.9)"); i.addColorStop(0.65, "rgba(255,80,0,0.6)"); i.addColorStop(1, "rgba(0,0,0,0)");
+    n.fillStyle = i; n.beginPath(); n.arc(0, 0, r, 0, 2*Math.PI); n.arc(0, 0, a, 0, 2*Math.PI, true); n.fill();
+    return new THREE.CanvasTexture(t);
 }
-const r1 = new THREE.Mesh(new THREE.RingGeometry(60, 80, 128), new THREE.MeshBasicMaterial({map: ringTex(), transparent: true, side: THREE.DoubleSide}));
-const r2 = new THREE.Mesh(new THREE.RingGeometry(85, 100, 128), new THREE.MeshBasicMaterial({map: ringTex(), transparent: true, side: THREE.DoubleSide, opacity: 0.6}));
-r1.rotation.x = r2.rotation.x = Math.PI/2;
-scene.add(r1, r2);
+const ring1 = new THREE.Mesh(new THREE.RingGeometry(60, 80, 128), new THREE.MeshBasicMaterial({map: ringTexture(), transparent: true, side: THREE.DoubleSide}));
+const ring2 = new THREE.Mesh(new THREE.RingGeometry(85, 100, 128), new THREE.MeshBasicMaterial({map: ringTexture(), transparent: true, side: THREE.DoubleSide, opacity: 0.6}));
+ring1.rotation.x = ring2.rotation.x = Math.PI/2;
+scene.add(ring1, ring2);
 
-// Nube de Palabras
-const WORDS = ["💖 Valentina","✨ Mi amor","🌹 Respeto","🤝 Lealtad","👑 Reina","💎 Eres todo","❤️ Te amo","🌌 Mi universo","🌟 Brillas","🔥 Siempre tú","💕 Cariño","🙏 Gracias","🌈 Felicidad","🦋 Mi paz","💫 Magia","🥰 Mi vida","🌸 Eres luz","🔥 Pasión"];
+const baseWords = ["💖 Mi amor","🌞 Mi sol","🌎 Mi mundo","✨ Brillas","❤️ Te amo","🌌 Universo","👑 Reina","🌠 Estrella","💫 Mi cielo","🔥 Siempre tú","🎶 Tu risa","🦋 Libertad","💎 Eres todo","🙏 Gracias","💕 Cariño","🌹 Amor eterno","🤗 Abrazos","🌸 Esperanza","🌈 Alegría","🌟 Contigo","🧸 Ternura","🎁 Mi razón","🌙 Mi destino","💌 Recuerdos","🕊️ Mi paz","🪐 Mi universo","🌊 Mi calma","💡 Mi luz","🍒 Dulzura","🥰 Mi vida","🎇 Felicidad","🌻 Alegría","🌺 Mi flor","💜 Eternidad","🌟 Sueños","✨ Magia","🎵 Canción","🔥 Pasión","⭐ Mi estrella","🌴 Mi paraíso","🌄 Amanecer","🌃 Noche contigo","🎉 Mi fiesta","💫 Inspiración","🌷 Siempre juntos","🎀 Mi ternura","🍀 Mi fortuna","🪞 Mi reflejo"];
+const WORDS = []; for(let e=0; e<6; e++) WORDS.push(...baseWords);
+
+function makeWordTexture(e, t) {
+    const n = document.createElement("canvas"); n.width = 512; n.height = 128;
+    const a = n.getContext("2d"); a.font = "bold 60px Arial"; a.textAlign = "center"; a.textBaseline = "middle";
+    a.fillStyle = "#fff"; a.shadowColor = t; a.shadowBlur = 30; a.fillText(e, 256, 64);
+    return new THREE.CanvasTexture(n);
+}
+
+const COLORS = ["#ff66ff","#66ccff","#ffd36b","#ff9966","#8df59a","#ffa0f8","#c6a7ff","#ff4444","#44ff99","#99ccff"];
 const textGroup = new THREE.Group();
 scene.add(textGroup);
 
-const COLORS = ["#ff66ff","#66ccff","#ffd36b","#ff9966","#8df59a","#ffa0f8"];
-for (let i = 0; i < 60; i++) {
-    const txt = WORDS[i % WORDS.length];
-    const sprite = new THREE.Sprite(new THREE.SpriteMaterial({map: makeTextTexture(txt, 50, 20), transparent: true}));
-    sprite.scale.set(45, 12, 1);
-    const phi = Math.acos(2 * Math.random() - 1),
-          theta = Math.random() * Math.PI * 2,
-          r = 160 + 100 * Math.random();
-    sprite.position.set(r * Math.sin(phi) * Math.cos(theta), r * Math.cos(phi), r * Math.sin(phi) * Math.sin(theta));
-    sprite.userData = { phi, theta, r, speed: 0.001 + 0.002 * Math.random() };
+for (let e = 0; e < WORDS.length; e++) {
+    const sprite = new THREE.Sprite(new THREE.SpriteMaterial({map: makeWordTexture(WORDS[e], COLORS[e % COLORS.length]), transparent: true}));
+    sprite.scale.set(50, 16, 1);
+    const r = Math.acos(2 * Math.random() - 1), i = Math.random() * Math.PI * 2, o = 150 + 120 * Math.random();
+    sprite.position.set(o * Math.sin(r) * Math.cos(i), o * Math.cos(r), o * Math.sin(r) * Math.sin(i));
+    sprite.userData = {phi: r, theta: i, radius: o, speed: 0.001 + 0.001 * Math.random()};
     textGroup.add(sprite);
 }
 
-// Interacciones
-let dragging = false, lastX, lastY;
-const onDown = e => { dragging = true; const t = e.touches ? e.touches[0] : e; lastX = t.clientX; lastY = t.clientY; };
-const onMove = e => {
+let dragging = false, lastX = 0, lastY = 0;
+function onDown(e) { dragging = true; const t = e.touches ? e.touches[0] : e; lastX = t.clientX; lastY = t.clientY; }
+function onMove(e) {
     if (!dragging) return;
     const t = e.touches ? e.touches[0] : e;
-    rotY -= (t.clientX - lastX) * 0.005;
-    rotX = Math.max(-1.2, Math.min(1.2, rotX - (t.clientY - lastY) * 0.005));
+    rotY -= 3 * (t.clientX - lastX) / innerWidth;
+    rotX = Math.max(-1.2, Math.min(1.2, rotX - 2.2 * (t.clientY - lastY) / innerHeight));
     lastX = t.clientX; lastY = t.clientY;
-};
+}
 addEventListener("mousedown", onDown); addEventListener("mousemove", onMove); addEventListener("mouseup", () => dragging = false);
 addEventListener("touchstart", onDown, {passive: true}); addEventListener("touchmove", onMove, {passive: true}); addEventListener("touchend", () => dragging = false);
-addEventListener("wheel", e => { targetDist = Math.max(160, Math.min(700, targetDist + e.deltaY * 0.5)); }, {passive: true});
+addEventListener("wheel", e => { targetDist = Math.max(160, Math.min(600, targetDist + 0.25 * e.deltaY)); }, {passive: true});
 
-// Animación
+let t = 0;
 function tick() {
-    requestAnimationFrame(tick);
-    const t = Date.now() * 0.001;
-    r1.rotation.z += 0.002; r2.rotation.z -= 0.001;
-    const s = 1 + 0.05 * Math.sin(t * 3); core.scale.set(s,s,s);
-    glow.scale.set(500 * (1 + 0.02 * Math.sin(t)), 500 * (1 + 0.02 * Math.sin(t)), 1);
-    
-    textGroup.children.forEach(sp => {
-        sp.userData.theta += sp.userData.speed;
-        sp.position.x = sp.userData.r * Math.sin(sp.userData.phi) * Math.cos(sp.userData.theta);
-        sp.position.z = sp.userData.r * Math.sin(sp.userData.phi) * Math.sin(sp.userData.theta);
+    requestAnimationFrame(tick); t += 0.01;
+    ring1.rotation.z += 0.002; ring2.rotation.z -= 0.0015;
+    glow.scale.set(500 * (1 + 0.03 * Math.sin(0.4 * t)), 500 * (1 + 0.03 * Math.sin(0.4 * t)), 1);
+    const scale = 1 + 0.05 * Math.sin(3 * t); core.scale.set(scale, scale, scale);
+    textGroup.children.forEach(e => {
+        e.userData.theta += e.userData.speed;
+        e.position.x = e.userData.radius * Math.sin(e.userData.phi) * Math.cos(e.userData.theta);
+        e.position.z = e.userData.radius * Math.sin(e.userData.phi) * Math.sin(e.userData.theta);
     });
-
-    currentDist += 0.05 * (targetDist - currentDist);
+    currentDist += 0.06 * (targetDist - currentDist);
     camera.position.set(currentDist * Math.sin(rotY) * Math.cos(rotX), currentDist * Math.sin(rotX), currentDist * Math.cos(rotY) * Math.cos(rotX));
-    camera.lookAt(0,0,0);
-    renderer.render(scene, camera);
+    camera.lookAt(0, 0, 0); renderer.render(scene, camera);
 }
 tick();
 
-window.onresize = () => {
-    renderer.setSize(innerWidth, innerHeight);
-    camera.aspect = innerWidth/innerHeight;
-    camera.updateProjectionMatrix();
-};
+window.onresize = () => { renderer.setSize(innerWidth, innerHeight); camera.aspect = innerWidth / innerHeight; camera.updateProjectionMatrix(); };
 </script>
 </body>
 </html>
-
